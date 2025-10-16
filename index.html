@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Image Viewer</title>
+  <title>Image and CSV Viewer</title>
   <style>
     body {
       font-family: sans-serif;
@@ -20,22 +20,30 @@
     .container {
       background-color: #fff;
       border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
       padding: 20px;
+      width: 80%;
+      max-width: 800px;
       margin-bottom: 20px;
+    }
+
+    h1 {
       text-align: center;
+      color: #333;
     }
 
     img {
       max-width: 100%;
       height: auto;
       display: block;
-      margin: 0 auto;
+      margin: 20px auto;
+      border: 1px solid #ddd;
+      border-radius: 4px;
     }
 
     table {
-      border-collapse: collapse;
       width: 100%;
+      border-collapse: collapse;
       margin-top: 20px;
     }
 
@@ -48,73 +56,85 @@
     th {
       background-color: #f2f2f2;
     }
+
+    #csvTable {
+      overflow-x: auto;
+    }
+
+    /* Responsive design */
+    @media (max-width: 600px) {
+      .container {
+        width: 95%;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Image Viewer</h1>
-    <img id="image" src="" alt="Image">
-  </div>
+    <h1>Image and CSV Viewer</h1>
 
-  <div class="container">
-    <h2>CSV Data</h2>
-    <table id="csvTable"></table>
+    <img id="imageDisplay" src="" alt="Image">
+
+    <div id="csvTable">
+      <table>
+        <thead>
+          <tr></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
   </div>
 
   <script>
-    // Function to parse CSV data and create a table
-    function createTable(csvData, tableId) {
-      const table = document.getElementById(tableId);
-      const rows = csvData.split('\n');
-
-      if (!table) {
-        console.error('Table element not found:', tableId);
-        return;
-      }
-
-      table.innerHTML = ''; // Clear existing table content
-
-      rows.forEach((row, rowIndex) => {
-        const cells = row.split(',');
-        const tr = document.createElement('tr');
-
-        cells.forEach((cell, cellIndex) => {
-          const cellElement = rowIndex === 0 ? document.createElement('th') : document.createElement('td');
-          cellElement.textContent = cell;
-          tr.appendChild(cellElement);
-        });
-
-        table.appendChild(tr);
-      });
+    function loadAndDisplayImage(url, elementId) {
+      fetch(url)
+        .then(response => response.text())
+        .then(base64Text => {
+          const mimeType = url.includes('#mime=') ? url.split('#mime=')[1] : 'image/png';
+          const imgElement = document.getElementById(elementId);
+          imgElement.src = 'data:' + mimeType + ';base64,' + base64Text;
+        })
+        .catch(error => console.error('Error fetching image:', error));
     }
 
-    // Fetch and display image (example - replace with your image loading logic if needed)
-    // Placeholder for image loading logic (if still required from the previous state).
-    // No image is currently loaded in the initial HTML, and no image URL is provided.
+      function loadAndDisplayCSV(url) {
+        fetch(url)
+          .then(response => response.text())
+          .then(base64Text => {
+            const csvText = atob(base64Text);
+            const table = csvToTable(csvText);
+            document.getElementById('csvTable').innerHTML = table;
+          })
+          .catch(error => console.error('Error fetching CSV:', error));
+      }
+    
+    function csvToTable(csv) {
+      const lines = csv.split('\n');
+      let table = '<table><thead><tr>';
+    
+      const headers = lines[0].split(',');
+      for (const header of headers) {
+        table += `<th>${header}</th>`;
+      }
+      table += '</tr></thead><tbody>';
+    
+      for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(',');
+        table += '<tr>';
+        for (const value of values) {
+          table += `<td>${value}</td>`;
+        }
+        table += '</tr>';
+      }
+    
+      table += '</tbody></table>';
+      return table;
+    }
 
-    // Fetch and display CSV data
-    const atts = [
-      { id: 'csvTable', url: 'https://sanat-garg.github.io/calendigy-5/assets/csv-file-1760632404563.b64', mime: '@file/csv' },
-    ];
-
-    atts.forEach(({ id, url, mime }) => {
-      fetch(url)
-        .then(response => {
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          return response.text();
-        })
-        .then(b => {
-          createTable(b, id);
-        })
-        .catch(error => {
-          console.error('Error fetching or processing CSV:', error);
-          const table = document.getElementById(id);
-          if (table) {
-            table.innerHTML = '<tr><td>Error loading CSV data.</td></tr>';
-          }
-        });
+    // Example usage (replace with your actual URLs)
+    document.addEventListener('DOMContentLoaded', () => {
+      loadAndDisplayImage('image.b64#mime=image/png', 'imageDisplay'); // Example image loading
+      loadAndDisplayCSV('data.csv.b64'); // Example CSV loading
     });
   </script>
 </body>
