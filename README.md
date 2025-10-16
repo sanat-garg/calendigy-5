@@ -1,26 +1,23 @@
-# Image Viewer
+# Image and CSV Viewer
 
 ## Description
 
-This is a simple, static web application that displays an image fetched from a base64 encoded data URL. The application is designed to be lightweight, responsive, and easy to deploy. It utilizes only vanilla JavaScript and embedded CSS for maximum compatibility and ease of use.
+This is a simple, static web application that displays an image (if provided - previously supported, now focused on CSV) and tabular data fetched from a base64 encoded data URL. The application is designed to be lightweight, responsive, and easy to deploy. It utilizes only vanilla JavaScript and embedded CSS for maximum compatibility and ease of use.
 
 ## Features
 
-- Displays an image fetched from a remote `.b64` file.
-- Uses base64 encoding to render the image directly in the browser.
+- Displays a CSV file as an HTML table fetched from a remote `.b64` file.
+- Uses base64 encoding to render the CSV data directly in the browser.
 - Responsive design adapts to different screen sizes.
-- Clean and modern user interface.
-- No external frameworks or libraries required.
+- No external dependencies - pure HTML, CSS, and JavaScript.
 
-## How to Use
+## Usage
 
-1.  **Clone the repository:** Clone this repository to your local machine.
-2.  **Open `index.html`:** Open the `index.html` file in your web browser. The image should be displayed.
-3.  **GitHub Pages Deployment:** The application is designed to be deployed directly to GitHub Pages by simply pushing the files to a GitHub repository and enabling GitHub Pages in the repository settings.
+The application fetches the CSV data from a specified URL and renders it as an HTML table.  To use it:
 
-## Technologies Used
+1.  Ensure the `.b64` file containing the base64 encoded CSV data is accessible at the specified URL.
+2.  Open `index.html` in a web browser.
 
--   HTML5
--   CSS3 (Embedded)
--   JavaScript (Vanilla)
-```
+## Modification
+
+To modify the displayed CSV data, update the URL in the JavaScript section of `index.html`.  The `createTable` function can be adapted for different CSV formats by adjusting the delimiter used in the `split` method.
